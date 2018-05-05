@@ -172,7 +172,7 @@ export default class MedicationStatementsTable extends React.Component {
     }
 
     return(
-      <Table id='medicationStatementsTable' responses hover >
+      <Table id='medicationStatementsTable' hover >
         <thead>
           <tr>
             { this.renderTogglesHeader(this.data.displayToggle) }
