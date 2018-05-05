@@ -22,11 +22,7 @@ export {
   DynamicRoutes, 
 
   MedicationStatementsPage,
-  MedicationStatementsTable,
-
-  MedicationStatement,
-  MedicationStatements,
-  MedicationStatementSchema
+  MedicationStatementsTable
 };
 
 
