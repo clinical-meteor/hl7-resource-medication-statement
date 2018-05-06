@@ -7,7 +7,10 @@ import ReactMixin from 'react-mixin';
 import { Table } from 'react-bootstrap';
 import Toggle from 'material-ui/Toggle';
 
-const mapStatementToRow = function(statement){
+
+const flattenMedicationStatement = function(statement){
+  console.log('flattenMedicationStatement', statement)
+
   var newRow = {
     '_id': statement._id,
     'medication': '',
@@ -20,57 +23,21 @@ const mapStatementToRow = function(statement){
     'reasonCodeDisplay': '',
     'dosage': '',
   };
-  console.log('statement', statement)
 
-  if(statement){
+  newRow.subjectDisplay = get(statement, 'subject.display');
+  newRow.medication = get(statement, 'medicationReference.reference');
+  newRow.medication = get(statement, 'medicationReference.display');
+  newRow.medication = get(statement, 'medicationCodeableConcept.coding[0].display');
+  newRow.identifier = get(statement, 'identifier[0].value');
+  newRow.effectiveDateTime = moment(get(statement, 'effectiveDateTime')).format("YYYY-MM-DD");
+  newRow.dateAsserted = moment(get(statement, 'dateAsserted')).format("YYYY-MM-DD");
+  newRow.informationSource = get(statement, 'informationSource.display');
+  newRow.taken = get(statement, 'taken');
+  newRow.reasonCodeDisplay = get(statement, 'reasonCode[0].coding[0].display');
 
-    if(get(statement), 'subject.display'){
-      newRow.subjectDisplay = get(statement, 'subject.display');
-    }        
-  
-    console.log('medicationReference.reference', get(statement, 'medicationReference.reference'));
-  
-    // display the reference if it's the only thing we have
-    if(has(statement, 'medicationReference.reference')){
-      newRow.medication = get(statement, 'medicationReference.reference');
-    } 
-    // but if there's a display value specified, use it instead
-    if(has(statement, 'medicationReference.display')){
-      newRow.medication = get(statement, 'medicationReference.display');
-    } 
-    // but best is to use a properly coded value
-    if(has(statement, 'medicationCodeableConcept.coding[0].display')){
-      newRow.medication = get(statement, 'medicationCodeableConcept.coding[0].display');
-    }  
-  
-    if(has(statement, 'identifier[0].value')){
-      newRow.identifier = get(statement, 'identifier[0].value');
-    }        
-  
-    if(has(statement, 'effectiveDateTime')){
-      newRow.effectiveDateTime = moment(get(statement, 'effectiveDateTime')).format("YYYY-MM-DD");
-    }        
-  
-    if(has(statement, 'dateAsserted')){
-      newRow.dateAsserted = moment(get(statement, 'dateAsserted')).format("YYYY-MM-DD");
-    }        
-  
-    if(has(statement, 'informationSource.display')){
-      newRow.informationSource = get(statement, 'informationSource.display');
-    }        
-  
-    if(has(statement, 'taken')){
-      newRow.taken = get(statement, 'taken');
-    }        
-  
-    if(has(statement, 'reasonCode[0].coding[0].display')){
-      newRow.reasonCodeDisplay = get(statement, 'reasonCode[0].coding[0].display');
-    }  
-    console.log('newRow', newRow);
-    return newRow;
-  
-  }
+  return newRow;
 }
+
 export default class MedicationStatementsTable extends React.Component {
 
   getMeteorData() {
@@ -95,13 +62,13 @@ export default class MedicationStatementsTable extends React.Component {
     }
     if(this.props.data){
       this.props.data.map(function(statement){
-        data.medicationStatements.push(mapStatementToRow(statement));        
+        data.medicationStatements.push(flattenMedicationStatement(statement));        
       });
     } else {
       if(MedicationStatements.find().count() > 0){
 
         MedicationStatements.find().map(function(statement){        
-          data.medicationStatements.push(mapStatementToRow(statement));
+          data.medicationStatements.push(flattenMedicationStatement(statement));
         });
       } else {
         data.medicationStatements = [];        
