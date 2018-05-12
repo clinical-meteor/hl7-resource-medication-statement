@@ -12,6 +12,7 @@ import React  from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin  from 'react-mixin';
 
+Session.setDefault('fhirVersion', 'v1.0.2');
 export class MedicationStatementsPage extends React.Component {
   getMeteorData() {
     let data = {
@@ -24,8 +25,13 @@ export class MedicationStatementsPage extends React.Component {
       },
       tabIndex: Session.get('medicationStatementPageTabIndex'),
       medicationStatementSearchFilter: Session.get('medicationStatementSearchFilter'),
-      currentMedicationStatement: Session.get('selectedMedicationStatement')
+      currentMedicationStatement: Session.get('selectedMedicationStatement'),
+      fhirVersion: 'v1.0.2'
     };
+
+    if(Session.get('fhirVersion')){
+      data.fhirVersion = Session.get('fhirVersion')
+    }
 
     data.style = Glass.blur(data.style);
     data.style.appbar = Glass.darkroom(data.style.appbar);
@@ -56,7 +62,7 @@ export class MedicationStatementsPage extends React.Component {
                  <MedicationStatementDetail id='newMedicationStatement' />
                </Tab>
                <Tab className="medicationStatementListTab" label='MedicationStatements' onActive={this.handleActive} style={this.data.style.tab} value={1}>
-                <MedicationStatementsTable />
+                <MedicationStatementsTable fhirVersion={ this.data.fhirVersion } />
                </Tab>
                <Tab className="medicationStatementDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>
                  <MedicationStatementDetail 

@@ -6,14 +6,18 @@ import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin from 'react-mixin';
 import { Table } from 'react-bootstrap';
 import Toggle from 'material-ui/Toggle';
+// import { moment } from 'meteor/momentjs/moment';
 
-
-const flattenMedicationStatement = function(statement){
+const flattenMedicationStatement = function(statement, fhirVersion){
   console.log('flattenMedicationStatement', statement)
 
   var newRow = {
     '_id': statement._id,
     'medication': '',
+    'medicationReference': '',
+    'medicationDisplay': '',
+    'reasonCodeCode': '',
+    'reasonCodeDisplay': '',
     'basedOn': '',
     'effectiveDateTime': '',
     'dateAsserted': null,
@@ -24,16 +28,36 @@ const flattenMedicationStatement = function(statement){
     'dosage': '',
   };
 
-  newRow.subjectDisplay = get(statement, 'subject.display');
-  newRow.medication = get(statement, 'medicationReference.reference');
-  newRow.medication = get(statement, 'medicationReference.display');
-  newRow.medication = get(statement, 'medicationCodeableConcept.coding[0].display');
-  newRow.identifier = get(statement, 'identifier[0].value');
-  newRow.effectiveDateTime = moment(get(statement, 'effectiveDateTime')).format("YYYY-MM-DD");
-  newRow.dateAsserted = moment(get(statement, 'dateAsserted')).format("YYYY-MM-DD");
-  newRow.informationSource = get(statement, 'informationSource.display');
-  newRow.taken = get(statement, 'taken');
-  newRow.reasonCodeDisplay = get(statement, 'reasonCode[0].coding[0].display');
+  // DSTU2
+  if(fhirVersion === "v1.0.2"){
+    newRow.subjectDisplay = get(statement, 'subject.display');
+    // newRow.medicationReference = get(statement, 'medicationReference.reference');
+    // newRow.medicationDisplay = get(statement, 'medicationReference.display');
+    newRow.medication = get(statement, 'medicationReference.display');
+    // newRow.reasonCodeCode = get(statement, 'reasonCode[0].coding[0].code');
+    // newRow.reasonCodeDisplay = get(statement, 'reasonCode[0].coding[0].display');
+    newRow.identifier = get(statement, 'identifier[0].value');
+    newRow.effectiveDateTime = moment(get(statement, 'effectiveDateTime')).format("YYYY-MM-DD");
+    newRow.dateAsserted = moment(get(statement, 'dateAsserted')).format("YYYY-MM-DD");
+    newRow.informationSource = get(statement, 'informationSource.display');
+    newRow.taken = get(statement, 'taken');
+    newRow.reasonCodeDisplay = get(statement, 'reasonCode[0].coding[0].display');  
+  }
+
+  // STU3
+  if(fhirVersion === "v3.0.1"){
+    newRow.subjectDisplay = get(statement, 'subject.display');
+    newRow.medication = get(statement, 'medicationReference.reference');
+    newRow.medication = get(statement, 'medicationReference.display');
+    newRow.medication = get(statement, 'medicationCodeableConcept.coding[0].display');
+    newRow.identifier = get(statement, 'identifier[0].value');
+    newRow.effectiveDateTime = moment(get(statement, 'effectiveDateTime')).format("YYYY-MM-DD");
+    newRow.dateAsserted = moment(get(statement, 'dateAsserted')).format("YYYY-MM-DD");
+    newRow.informationSource = get(statement, 'informationSource.display');
+    newRow.taken = get(statement, 'taken');
+    newRow.reasonCodeDisplay = get(statement, 'reasonCode[0].coding[0].display');  
+  }
+
 
   return newRow;
 }
@@ -51,7 +75,12 @@ export default class MedicationStatementsTable extends React.Component {
       selected: [],
       medicationStatements: [],
       displayToggle: false,
-      displayDates: true
+      displayDates: true,
+      fhirVersion: 'v1.0.2'
+    }
+
+    if(this.props.fhirVersion){
+      data.fhirVersion = this.props.fhirVersion;
     }
     
     if(this.props.displayToggles){
@@ -62,13 +91,13 @@ export default class MedicationStatementsTable extends React.Component {
     }
     if(this.props.data){
       this.props.data.map(function(statement){
-        data.medicationStatements.push(flattenMedicationStatement(statement));        
+        data.medicationStatements.push(flattenMedicationStatement(statement, data.fhirVersion));        
       });
     } else {
       if(MedicationStatements.find().count() > 0){
 
         MedicationStatements.find().map(function(statement){        
-          data.medicationStatements.push(flattenMedicationStatement(statement));
+          data.medicationStatements.push(flattenMedicationStatement(statement, data.fhirVersion));
         });
       } else {
         data.medicationStatements = [];        

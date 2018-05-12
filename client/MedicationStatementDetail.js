@@ -89,56 +89,56 @@ export default class MedicationStatementDetail extends React.Component {
     }    
     
 
-    if(has(data.medicationStatement, 'medicationReference.display')){
+    // if(has(data.medicationStatement, 'medicationReference.display')){
       data.medicationStatementForm.medicationDisplay = get(data.medicationStatement, 'medicationReference.display', '');
-    } 
-    if(has(data.medicationStatement, 'medicationReference.reference')){
+    // } 
+    // if(has(data.medicationStatement, 'medicationReference.reference')){
       data.medicationStatementForm.medicationReference = get(data.medicationStatement, 'medicationReference.reference', '');
-    } 
+    // } 
 
-    if(has(data.medicationStatement, 'identifier[0].value')){
+    // if(has(data.medicationStatement, 'identifier[0].value')){
       data.medicationStatementForm.identifier = get(data.medicationStatement, 'identifier[0].value', '');
-    }        
+    // }        
 
-    if(has(data.medicationStatement, 'effectiveDateTime')){
+    // if(has(data.medicationStatement, 'effectiveDateTime')){
       data.medicationStatementForm.effectiveDateTime = moment(get(data.medicationStatement, 'effectiveDateTime')).format("YYYY-MM-DD");
-    }        
+    // }        
 
-    if(has(data.medicationStatement, 'dateAsserted')){
+    // if(has(data.medicationStatement, 'dateAsserted')){
       data.medicationStatementForm.dateAsserted = moment(get(data.medicationStatement, 'dateAsserted')).format("YYYY-MM-DD");
-    }        
+    // }        
 
-    if(has(data.medicationStatement, 'subject.display')){
+    // if(has(data.medicationStatement, 'subject.display')){
       data.medicationStatementForm.subjectDisplay = get(data.medicationStatement, 'subject.display', '');
-    }        
-    if(has(data.medicationStatement, 'subject.reference')){
+    // }        
+    // if(has(data.medicationStatement, 'subject.reference')){
       data.medicationStatementForm.subjectReference = get(data.medicationStatement, 'subject.reference', '');
-    }        
+    // }        
 
-    if(has(data.medicationStatement, 'informationSource.display')){
+    // if(has(data.medicationStatement, 'informationSource.display')){
       data.medicationStatementForm.informationSourceDisplay = get(data.medicationStatement, 'informationSource.display', '');
-    }        
-    if(has(data.medicationStatement, 'informationSource.reference')){
+    // }        
+    // if(has(data.medicationStatement, 'informationSource.reference')){
       data.medicationStatementForm.informationSourceReference = get(data.medicationStatement, 'informationSource.reference', '');
-    }        
+    // }        
 
-    if(has(data.medicationStatement, 'taken')){
+    // if(has(data.medicationStatement, 'taken')){
       data.medicationStatementForm.taken = get(data.medicationStatement, 'taken', 'y');
-    }        
+    // }        
 
-    if(has(data.medicationStatement, 'reasonCode[0].coding[0].display')){
+    // if(has(data.medicationStatement, 'reasonCode[0].coding[0].display')){
       data.medicationStatementForm.reasonCodeDisplay = get(data.medicationStatement, 'reasonCode[0].coding[0].display', '');
-    }  
-    if(has(data.medicationStatement, 'reasonCode[0].coding[0].code')){
+    // }  
+    // if(has(data.medicationStatement, 'reasonCode[0].coding[0].code')){
       data.medicationStatementForm.reasonCode = get(data.medicationStatement, 'reasonCode[0].coding[0].code', '');
-    }  
-    if(has(data.medicationStatement, 'note[0].text')){
+    // }  
+    // if(has(data.medicationStatement, 'note[0].text')){
       data.medicationStatementForm.clinicalNote = get(data.medicationStatement, 'note[0].text', '');
-    }     
+    // }     
     
-    if (Session.get('medicationStatementFormUpsert')) {
+    // if (Session.get('medicationStatementFormUpsert')) {
       data.medicationStatementForm = Session.get('medicationStatementFormUpsert');
-    } 
+    // } 
 
     console.log('MedicationStatementDetail[data]', data);
     return data;
@@ -148,14 +148,17 @@ export default class MedicationStatementDetail extends React.Component {
     return (
       <div id={this.props.id} className="medicationStatementDetail">
         <CardText>
-          <TextField
+            <DatePicker
               id='dateAssertedInput'
               ref='dateAsserted'
               name='dateAsserted'
               floatingLabelText='Date Asserted'
-              value={this.data.medicationStatementForm.dateAsserted ? this.data.medicationStatementForm.dateAsserted : ''}
+              container="inline" 
+              mode="landscape"
+              value={ get(this, 'data.medicationStatementForm.dateAsserted') }
               onChange={ this.changeState.bind(this, 'dateAsserted')}
               /><br/>   
+
           <Row> 
             <Col md={8} >
               <TextField
@@ -163,7 +166,7 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='subjectDisplay'
                 name='subjectDisplay'
                 floatingLabelText='Patient - Display'
-                value={this.data.medicationStatementForm.subjectDisplay ? this.data.medicationStatementForm.subjectDisplay : ''}
+                value={ get(this, 'data.medicationStatementForm.subjectDisplay') }
                 onChange={ this.changeState.bind(this, 'subjectDisplay')}
                 fullWidth
                 /><br/>
@@ -174,7 +177,7 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='subjectReference'
                 name='subjectReference'
                 floatingLabelText='Patient - Reference'
-                value={this.data.medicationStatementForm.subjectReference ? this.data.medicationStatementForm.subjectReference : ''}
+                value={ get(this, 'data.medicationStatementForm.subjectReference') }
                 onChange={ this.changeState.bind(this, 'subjectReference')}
                 fullWidth
                 /><br/>         
@@ -187,7 +190,7 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='informationSourceDisplay'
                 name='informationSourceDisplay'
                 floatingLabelText='Information Source - Display'
-                value={this.data.medicationStatementForm.informationSourceDisplay ? this.data.medicationStatementForm.informationSourceDisplay : ''}
+                value={ get(this, 'data.medicationStatementForm.informationSourceDisplay') }
                 onChange={ this.changeState.bind(this, 'informationSourceDisplay')}
                 fullWidth
                 /><br/>
@@ -198,7 +201,7 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='informationSourceReference'
                 name='informationSourceReference'
                 floatingLabelText='Information Source - Reference'
-                value={this.data.medicationStatementForm.informationSourceReference ? this.data.medicationStatementForm.informationSourceReference : ''}
+                value={ get(this, 'data.medicationStatementForm.informationSourceReference') }
                 onChange={ this.changeState.bind(this, 'informationSourceReference')}
                 fullWidth
                 /><br/>   
@@ -213,7 +216,7 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='medicationDisplay'
                 name='medicationDisplay'
                 floatingLabelText='Medication - Display'
-                value={this.data.medicationStatementForm.medicationDisplay ? this.data.medicationStatementForm.medicationDisplay : ''}
+                value={ get(this, 'data.medicationStatementForm.medicationDisplay') }
                 onChange={ this.changeState.bind(this, 'medicationDisplay')}
                 fullWidth
                 /><br/>               
@@ -224,7 +227,7 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='medicationReference'
                 name='medicationReference'
                 floatingLabelText='Medication - Reference'
-                value={this.data.medicationStatementForm.medicationReference ? this.data.medicationStatementForm.medicationReference : ''}
+                value={ get(this, 'data.medicationStatementForm.medicationReference') }
                 onChange={ this.changeState.bind(this, 'medicationReference')}
                 fullWidth
                 /><br/>     
@@ -238,7 +241,7 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='reasonCodeDisplay'
                 name='reasonCodeDisplay'
                 floatingLabelText='Reason - Display Text'
-                value={this.data.medicationStatementForm.reasonCodeDisplay ? this.data.medicationStatementForm.reasonCodeDisplay : ''}
+                value={ get(this, 'data.medicationStatementForm.reasonCodeDisplay') }
                 onChange={ this.changeState.bind(this, 'reasonCodeDisplay')}
                 fullWidth
                 /><br/>   
@@ -249,7 +252,7 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='reasonCode'
                 name='reasonCode'
                 floatingLabelText='Reason - Code Value'
-                value={this.data.medicationStatementForm.reasonCode ? this.data.medicationStatementForm.reasonCode : ''}
+                value={ get(this, 'data.medicationStatementForm.reasonCode') }
                 onChange={ this.changeState.bind(this, 'reasonCode')}
                 fullWidth
                 /><br/>   
@@ -264,7 +267,7 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='taken'
                 name='taken'
                 floatingLabelText='Medication Taken'
-                value={this.data.medicationStatementForm.taken ? this.data.medicationStatementForm.taken : ''}
+                value={ get(this, 'data.medicationStatementForm.taken') }
                 onChange={ this.changeState.bind(this, 'taken')}
                 fullWidth
                 /><br/>   
@@ -277,7 +280,7 @@ export default class MedicationStatementDetail extends React.Component {
                 floatingLabelText='Effective Date/Time'
                 container="inline" 
                 mode="landscape"
-                value={this.data.medicationStatementForm.effectiveDateTime ? this.data.medicationStatementForm.effectiveDateTime : ''}
+                value={ get(this, 'data.medicationStatementForm.effectiveDateTime') }
                 onChange={ this.changeState.bind(this, 'effectiveDateTime')}
                 fullWidth
                 /><br/>   
@@ -292,7 +295,7 @@ export default class MedicationStatementDetail extends React.Component {
             ref='clinicalNote'
             name='clinicalNote'
             floatingLabelText='Clinical Note'
-            value={this.data.medicationStatementForm.clinicalNote ? this.data.medicationStatementForm.clinicalNote : ''}
+            value={ get(this, 'data.medicationStatementForm.clinicalNote') }
             onChange={ this.changeState.bind(this, 'clinicalNote')}
             multiLine={true}
             fullWidth
@@ -445,7 +448,9 @@ export default class MedicationStatementDetail extends React.Component {
 
     }
 
-    if(process.env.NODE_ENV === "test") console.log("medicationStatementStateChange", medicationStatementStateChange);
+    if(process.env.NODE_ENV === "test") {
+      console.log("medicationStatementStateChange", medicationStatementStateChange);
+    }
     Session.set('medicationStatementFormUpsert', medicationStatementStateChange);
   }
 
@@ -552,7 +557,7 @@ export default class MedicationStatementDetail extends React.Component {
   }
 
   handleDeleteButton(){
-    MedicationStatement.remove({_id: Session.get('selectedMedicationStatement')}, function(error, result){
+    MedicationStatements.remove({_id: Session.get('selectedMedicationStatement')}, function(error, result){
       if (error) {
         Bert.alert(error.reason, 'danger');
       }
