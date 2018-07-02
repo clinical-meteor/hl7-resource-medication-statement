@@ -2,7 +2,7 @@ import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 import { Col, Grid, Row } from 'react-bootstrap';
 import { get, has, set } from 'lodash';
 
-import { Bert } from 'meteor/themeteorchef:bert';
+import { Bert } from 'meteor/clinical:alert';
 import DatePicker from 'material-ui/DatePicker';
 import RaisedButton from 'material-ui/RaisedButton';
 import React from 'react';
