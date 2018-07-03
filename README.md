@@ -9,7 +9,7 @@
 
 
 #### API Reference  
-The resource in this package implements Medication Statement resource schema, specified at [https://www.hl7.org/fhir/medication-statement.html](https://www.hl7.org/fhir/medication-statement.html). 
+The resource in this package implements Medication Statement resource schema, specified at [https://www.hl7.org/fhir/medicationstatement.html](https://www.hl7.org/fhir/medicationstatement.html). 
 
 
 
