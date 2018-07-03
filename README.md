@@ -1,26 +1,29 @@
-##clinical:hl7-resource-medication-statement
+## clinical:hl7-resource-medication-statement
 
-HL7 FHIR Resource - MedicationStatement
-
-
-===============================
-#### Conformance Statement  
-
-The resource in this package implements the FHIR Patient Resource schema provided at  [https://www.hl7.org/fhir/medication-statementstatement.html](https://www.hl7.org/fhir/medication-statementstatement.html).  
+#### Licensing  
+![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 
-===============================
+#### Integration & Verification Tests  
+[![CircleCI](https://circleci.com/gh/clinical-meteor/hl7-resource-medication-statement/tree/master.svg?style=svg)](https://circleci.com/gh/clinical-meteor/hl7-resource-medication-statement/tree/master)
+
+
+#### API Reference  
+The resource in this package implements Medication Statement resource schema, specified at [https://www.hl7.org/fhir/medication-statement.html](https://www.hl7.org/fhir/medication-statement.html). 
+
+
+
 #### Installation  
 
 ````bash
 # to add hl7 resource schemas and rest routes
-meteor add clinical:hl7-resource-medication-statement
+meteor add clinical:hl7-resource-medication-statement-statement
 
 # to initialize default data
 INITIALIZE=true meteor
 ````
 
-===============================
+
 #### Example   
 
 ```js
@@ -28,7 +31,7 @@ var statement = {}
 MedicationStatements.insert(statement);
 ```
 
-===============================
+
 #### Extending the Schema
 
 ```js
@@ -45,16 +48,12 @@ MedicationStatements.attachSchema( ExtendedMedicationStatementSchema );
 ```
 
 
-
-===============================
 #### Utilities  
 
 If you're working with HL7 FHIR Resources, we recommend using [Postman](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en).
 
 
 
+#### Acknowledgements     
 
-===============================
-#### Licensing  
-
-![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+Many thanks to DxRx Medical, NY Methodist Hospital, and the New Orleans Pharmacy Museum for research and studies conducted in support of this library.  
