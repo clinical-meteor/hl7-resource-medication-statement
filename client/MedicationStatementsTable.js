@@ -28,22 +28,6 @@ const flattenMedicationStatement = function(statement, fhirVersion){
     'dosage': '',
   };
 
-  // DSTU2
-  if(fhirVersion === "v1.0.2"){
-    newRow.subjectDisplay = get(statement, 'subject.display');
-    // newRow.medicationReference = get(statement, 'medicationReference.reference');
-    // newRow.medicationDisplay = get(statement, 'medicationReference.display');
-    newRow.medication = get(statement, 'medicationReference.display');
-    // newRow.reasonCodeCode = get(statement, 'reasonCode[0].coding[0].code');
-    // newRow.reasonCodeDisplay = get(statement, 'reasonCode[0].coding[0].display');
-    newRow.identifier = get(statement, 'identifier[0].value');
-    newRow.effectiveDateTime = moment(get(statement, 'effectiveDateTime')).format("YYYY-MM-DD");
-    newRow.dateAsserted = moment(get(statement, 'dateAsserted')).format("YYYY-MM-DD");
-    newRow.informationSource = get(statement, 'informationSource.display');
-    newRow.taken = get(statement, 'taken');
-    newRow.reasonCodeDisplay = get(statement, 'reasonCode[0].coding[0].display');  
-  }
-
   // STU3
   if(fhirVersion === "v3.0.1"){
     newRow.subjectDisplay = get(statement, 'subject.display');
@@ -56,6 +40,21 @@ const flattenMedicationStatement = function(statement, fhirVersion){
     newRow.informationSource = get(statement, 'informationSource.display');
     newRow.taken = get(statement, 'taken');
     newRow.reasonCodeDisplay = get(statement, 'reasonCode[0].coding[0].display');  
+  }
+
+  // DSTU2
+  if(fhirVersion === "v1.0.2"){
+    newRow.subjectDisplay = get(statement, 'patient.display');
+    newRow.medicationReference = get(statement, 'medicationReference.reference');
+    newRow.medicationDisplay = get(statement, 'medicationReference.display');
+    newRow.medication = get(statement, 'medicationReference.display');
+    newRow.reasonCode = get(statement, 'reasonForUseCodeableConcept.coding[0].code');
+    newRow.reasonCodeDisplay = get(statement, 'reasonForUseCodeableConcept.coding[0].display');
+    newRow.identifier = get(statement, 'identifier[0].value');
+    newRow.effectiveDateTime = moment(get(statement, 'effectiveDateTime')).format("YYYY-MM-DD");
+    newRow.dateAsserted = moment(get(statement, 'dateAsserted')).format("YYYY-MM-DD");
+    newRow.informationSource = get(statement, 'supportingInformation[0].display');
+    newRow.reasonCodeDisplay = get(statement, 'reasonForUseCodeableConcept.coding[0].display');  
   }
 
 
@@ -131,7 +130,7 @@ export default class MedicationStatementsTable extends React.Component {
   renderDateHeader(displayDates){
     if (displayDates) {
       return (
-        <th className='date'>date</th>
+        <th className='date'>asserted at</th>
       );
     }
   }
@@ -144,7 +143,7 @@ export default class MedicationStatementsTable extends React.Component {
   }
   rowClick(id){
     Session.set('medicationStatementsUpsert', false);
-    Session.set('selectedMedicationStatement', id);
+    Session.set('selectedMedicationStatementId', id);
     Session.set('medicationStatementPageTabIndex', 2);
   };
   render () {
@@ -158,9 +157,9 @@ export default class MedicationStatementsTable extends React.Component {
           <td className='effectiveDateTime'>{ moment(this.data.medicationStatements[i].effectiveDateTime).format("YYYY-MM-DD") }</td>
           <td className='informationSource'>{ this.data.medicationStatements[i].informationSource }</td>
           <td className='subject'>{ this.data.medicationStatements[i].subjectDisplay }</td>
-          <td className='taken'>{ this.data.medicationStatements[i].taken }</td>
+          {/* <td className='taken'>{ this.data.medicationStatements[i].taken }</td> */}
           <td className='reason'>{ this.data.medicationStatements[i].reasonCodeDisplay }</td>
-          <td className='dosage'>{ this.data.medicationStatements[i].dosage }</td>
+          {/* <td className='dosage'>{ this.data.medicationStatements[i].dosage }</td> */}
           { this.renderDate(this.data.displayDates, this.data.medicationStatements[i].dateAsserted) }
 
         </tr>
@@ -176,9 +175,9 @@ export default class MedicationStatementsTable extends React.Component {
             <th className='effectiveDateTime'>date /time</th>
             <th className='informationSource'>source</th>
             <th className='subject'>subject</th>
-            <th className='taken'>taken</th>
+            {/* <th className='taken'>taken</th> */}
             <th className='reason'>reason</th>
-            <th className='dosage'>dosage</th>
+            {/* <th className='dosage'>dosage</th> */}
             { this.renderDateHeader(this.data.displayDates) }            
           </tr>
         </thead>

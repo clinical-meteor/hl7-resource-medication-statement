@@ -1,8 +1,18 @@
+// =======================================================================
+// Using DSTU2  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//
+// https://www.hl7.org/fhir/DSTU2/medicationstatement.html
+//
+//
+// =======================================================================
+
+
+
+
 import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 import { Col, Grid, Row } from 'react-bootstrap';
 import { get, has, set } from 'lodash';
 
-import { Bert } from 'meteor/clinical:alert';
 import DatePicker from 'material-ui/DatePicker';
 import RaisedButton from 'material-ui/RaisedButton';
 import React from 'react';
@@ -11,140 +21,197 @@ import ReactMixin from 'react-mixin';
 import TextField from 'material-ui/TextField';
 import { browserHistory } from 'react-router';
 import PropTypes from 'prop-types';
+import { moment } from 'meteor/momentjs:moment';
 
-let defaultMedicationStatement = {
-  "resourceType": "MedicationStatement",
-  "partOf": [],
-  "status": "",
-  "medicationCodeableConcept": {
-    "coding": []
-  },
-  "effectiveDateTime": null,
-  "dateAsserted": null,
-  "informationSource": {
-    "reference": "",
-    "display": ""
-  },
-  "subject": {
-    "reference": "",
-    "display": ""
-  },
-  "medicationReference": {
-    "reference": "",
-    "display": ""
-  },
-  "taken": "y",
-  "reasonCode": [{
-    "coding": [{
-      "code": "",
-      "display": ""
-    }]
-  }],
-  "note": [{
-    "text": ''
-  }],
-  "dosage": []
-};
-
-var defaultMedicationStatementForm = {
-  basedOn: "",
-  effectiveDateTime: "",
-  dateAsserted: "",
-  informationSourceReference: "",
-  informationSourceDisplay: "",
-  subjectDisplay: "",
-  subjectReference: "",
-  taken: "",
-  reasonCodeDisplay: "",
-  reasonCode: "",
-  dosage: "",
-  medicationReference: '',
-  medicationDisplay: '',
-  clinicalNote: ''
-};
-
+import { medicationStatement2, medicationStatement3 } from '../lib/defaultStatements.js';
 
 Session.setDefault('medicationStatementFormUpsert', false);
-Session.setDefault('selectedMedicationStatement', false);
 Session.setDefault('originalMedicationStatement', false);
 
-export default class MedicationStatementDetail extends React.Component {
+export class MedicationStatementDetail extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      medicationStatementId: false,
+      stu: medicationStatement3,
+      dstu2: medicationStatement2,
+      form: {
+        basedOn: "",
+        status: '',
+        effectiveDateTime: "",
+        dateAsserted: "",
+        informationSourceReference: "",
+        informationSourceDisplay: "",
+        subjectDisplay: "",
+        subjectReference: "",
+        taken: "",
+        reasonCodeDisplay: "",
+        reasonCode: "",
+        dosage: "",
+        medicationReference: '',
+        medicationDisplay: '',
+        clinicalNote: ''
+      }
+    }
+  }
+  shouldComponentUpdate(nextProps){
+    process.env.NODE_ENV === "test" && console.log('MedicationDetail.shouldComponentUpdate()', nextProps, this.state)
+    let shouldUpdate = true;
+
+    // both false; don't take any more updates
+    if(nextProps.medicationStatement === this.state.dstu2){
+      shouldUpdate = false;
+    }
+
+    // received an medicationStatement from the table; okay lets update again
+    if(nextProps.medicationStatementId !== this.state.medicationStatementId){
+
+      this.setState({medicationStatementId: nextProps.medicationStatementId});
+      
+      if(nextProps.medicationStatement){
+        this.setState({form: this.dehydrateFhirResource(nextProps.medicationStatement)})       
+
+        if(this.props.fhirVersion === "v3.0.1"){
+          this.setState({stu: nextProps.medicationStatement})     
+        }
+        if(this.props.fhirVersion === "v1.0.2"){
+          this.setState({dstu2: nextProps.medicationStatement})     
+        }
+      }
+      shouldUpdate = true;
+    }
+ 
+    return shouldUpdate;
+  }
+
+  dehydrateFhirResource(statement) {
+    let formData = Object.assign({}, this.state.form);
+
+    // STU3
+    if(this.props.fhirVersion === 'v3.0.1'){
+      formData.basedOn = get(statement, 'basedOn[0].display')
+      formData.effectiveDateTime = get(statement, 'effectiveDateTime')    
+      formData.dateAsserted = get(statement, 'dateAsserted')
+      formData.informationSourceReference = get(statement, 'informationSource.reference')
+      formData.informationSourceDisplay = get(statement, 'informationSource.display')
+      formData.subjectDisplay = get(statement, 'subject.display')
+      formData.subjectReference = get(statement, 'subject.reference')
+      formData.taken = get(statement, 'taken')
+      formData.reasonCodeDisplay = get(statement, 'reasonCode[0].coding[0].display')
+      formData.reasonCode = get(statement, 'reasonCode[0].coding[0].code')
+      formData.dosage = get(statement, 'dosage[0].text')
+      formData.medicationReference = get(statement, 'medicationReference.reference')
+      formData.medicationDisplay = get(statement, 'medicationReference.display')
+      formData.clinicalNote = get(statement, 'note[0].text')
+      formData.status = get(statement, 'status')
+    }
+
+    // DSTU2
+    if(this.props.fhirVersion === 'v1.0.2'){
+      formData.effectiveDateTime = get(statement, 'effectiveDateTime')    
+      formData.dateAsserted = get(statement, 'dateAsserted')
+      formData.informationSourceReference = get(statement, 'supportingInformation[0].reference')
+      formData.informationSourceDisplay = get(statement, 'supportingInformation[0].display')
+      formData.subjectDisplay = get(statement, 'patient.display')
+      formData.subjectReference = get(statement, 'patient.reference')
+      formData.reasonCodeDisplay = get(statement, 'reasonForUseCodeableConcept.coding[0].display')
+      formData.reasonCode = get(statement, 'reasonForUseCodeableConcept.coding[0].code')
+      formData.dosage = get(statement, 'dosage[0].text')
+      formData.medicationReference = get(statement, 'medicationReference.reference')
+      formData.medicationDisplay = get(statement, 'medicationReference.display')
+      formData.clinicalNote = get(statement, 'note[0].text')
+      formData.status = get(statement, 'status')
+    }
+
+    return formData;
+  }
+
+
+
   getMeteorData() {
     let data = {
-      medicationStatementId: false,
-      medicationStatement: defaultMedicationStatement,
-      medicationStatementForm: defaultMedicationStatementForm
+      medicationStatementId: this.state.medicationStatementId,
+      medicationStatement: false,
+      form: this.props.form
     };
 
-    if (Session.get('selectedMedicationStatement')) {
-      data.medicationStatementId = Session.get('selectedMedicationStatement');
-      console.log("selectedMedicationStatement", Session.get('selectedMedicationStatement'));
+    if(this.props.medicationStatement){
+      data.medicationStatement = this.props.medicationStatement;
+    }
 
-      data.medicationStatement = MedicationStatements.findOne({_id: Session.get('selectedMedicationStatement')});
-      console.log("selectedMedicationStatement", data.medicationStatement);
 
-    } else {
-      data.medicationStatementForm = defaultMedicationStatementForm;
-      data.medicationStatement = defaultMedicationStatement;
-    }    
+    // if (this.state.medicationStatementId) {
+    //   data.medicationStatementId = this.state.medicationStatementId;
+    //   console.log("selectedMedicationStatementId", this.state.medicationStatementId);
+
+    //   data.medicationStatement = MedicationStatements.findOne({_id: this.state.medicationStatementId});
+    //   console.log("selectedMedicationStatementId", data.medicationStatement);
+
+    // } else {
+    //   data.medicationStatementForm = defaultMedicationStatementForm;
+    //   data.medicationStatement = defaultMedicationStatement;
+    // }    
     
 
-    // if(has(data.medicationStatement, 'medicationReference.display')){
-      data.medicationStatementForm.medicationDisplay = get(data.medicationStatement, 'medicationReference.display', '');
-    // } 
-    // if(has(data.medicationStatement, 'medicationReference.reference')){
-      data.medicationStatementForm.medicationReference = get(data.medicationStatement, 'medicationReference.reference', '');
-    // } 
+    // // if(has(data.medicationStatement, 'medicationReference.display')){
+    //   data.medicationStatementForm.medicationDisplay = get(data.medicationStatement, 'medicationReference.display', '');
+    // // } 
+    // // if(has(data.medicationStatement, 'medicationReference.reference')){
+    //   data.medicationStatementForm.medicationReference = get(data.medicationStatement, 'medicationReference.reference', '');
+    // // } 
 
-    // if(has(data.medicationStatement, 'identifier[0].value')){
-      data.medicationStatementForm.identifier = get(data.medicationStatement, 'identifier[0].value', '');
-    // }        
+    // // if(has(data.medicationStatement, 'identifier[0].value')){
+    //   data.medicationStatementForm.identifier = get(data.medicationStatement, 'identifier[0].value', '');
+    // // }        
 
-    // if(has(data.medicationStatement, 'effectiveDateTime')){
-      data.medicationStatementForm.effectiveDateTime = moment(get(data.medicationStatement, 'effectiveDateTime')).format("YYYY-MM-DD");
-    // }        
+    // // if(has(data.medicationStatement, 'effectiveDateTime')){
+    //   data.medicationStatementForm.effectiveDateTime = moment(get(data.medicationStatement, 'effectiveDateTime')).format("YYYY-MM-DD");
+    // // }        
 
-    // if(has(data.medicationStatement, 'dateAsserted')){
-      data.medicationStatementForm.dateAsserted = moment(get(data.medicationStatement, 'dateAsserted')).format("YYYY-MM-DD");
-    // }        
+    // // if(has(data.medicationStatement, 'dateAsserted')){
+    //   data.medicationStatementForm.dateAsserted = moment(get(data.medicationStatement, 'dateAsserted')).format("YYYY-MM-DD");
+    // // }        
 
-    // if(has(data.medicationStatement, 'subject.display')){
-      data.medicationStatementForm.subjectDisplay = get(data.medicationStatement, 'subject.display', '');
-    // }        
-    // if(has(data.medicationStatement, 'subject.reference')){
-      data.medicationStatementForm.subjectReference = get(data.medicationStatement, 'subject.reference', '');
-    // }        
+    // // if(has(data.medicationStatement, 'subject.display')){
+    //   data.medicationStatementForm.subjectDisplay = get(data.medicationStatement, 'subject.display', '');
+    // // }        
+    // // if(has(data.medicationStatement, 'subject.reference')){
+    //   data.medicationStatementForm.subjectReference = get(data.medicationStatement, 'subject.reference', '');
+    // // }        
 
-    // if(has(data.medicationStatement, 'informationSource.display')){
-      data.medicationStatementForm.informationSourceDisplay = get(data.medicationStatement, 'informationSource.display', '');
-    // }        
-    // if(has(data.medicationStatement, 'informationSource.reference')){
-      data.medicationStatementForm.informationSourceReference = get(data.medicationStatement, 'informationSource.reference', '');
-    // }        
+    // // if(has(data.medicationStatement, 'informationSource.display')){
+    //   data.medicationStatementForm.informationSourceDisplay = get(data.medicationStatement, 'informationSource.display', '');
+    // // }        
+    // // if(has(data.medicationStatement, 'informationSource.reference')){
+    //   data.medicationStatementForm.informationSourceReference = get(data.medicationStatement, 'informationSource.reference', '');
+    // // }        
 
-    // if(has(data.medicationStatement, 'taken')){
-      data.medicationStatementForm.taken = get(data.medicationStatement, 'taken', 'y');
-    // }        
+    // // if(has(data.medicationStatement, 'taken')){
+    //   data.medicationStatementForm.taken = get(data.medicationStatement, 'taken', 'y');
+    // // }        
 
-    // if(has(data.medicationStatement, 'reasonCode[0].coding[0].display')){
-      data.medicationStatementForm.reasonCodeDisplay = get(data.medicationStatement, 'reasonCode[0].coding[0].display', '');
-    // }  
-    // if(has(data.medicationStatement, 'reasonCode[0].coding[0].code')){
-      data.medicationStatementForm.reasonCode = get(data.medicationStatement, 'reasonCode[0].coding[0].code', '');
-    // }  
-    // if(has(data.medicationStatement, 'note[0].text')){
-      data.medicationStatementForm.clinicalNote = get(data.medicationStatement, 'note[0].text', '');
-    // }     
+    // // if(has(data.medicationStatement, 'reasonCode[0].coding[0].display')){
+    //   data.medicationStatementForm.reasonCodeDisplay = get(data.medicationStatement, 'reasonCode[0].coding[0].display', '');
+    // // }  
+    // // if(has(data.medicationStatement, 'reasonCode[0].coding[0].code')){
+    //   data.medicationStatementForm.reasonCode = get(data.medicationStatement, 'reasonCode[0].coding[0].code', '');
+    // // }  
+    // // if(has(data.medicationStatement, 'note[0].text')){
+    //   data.medicationStatementForm.clinicalNote = get(data.medicationStatement, 'note[0].text', '');
+    // // }     
     
-    // if (Session.get('medicationStatementFormUpsert')) {
-      data.medicationStatementForm = Session.get('medicationStatementFormUpsert');
-    // } 
+    // // if (Session.get('medicationStatementFormUpsert')) {
+    //   data.medicationStatementForm = Session.get('medicationStatementFormUpsert');
+    // // } 
 
     console.log('MedicationStatementDetail[data]', data);
     return data;
   }
 
   render() {
+    if(process.env.NODE_ENV === "test") console.log('MedicationDetail.render()', this.state)
+    let formData = this.state.form;
+
     return (
       <div id={this.props.id} className="medicationStatementDetail">
         <CardText>
@@ -155,8 +222,9 @@ export default class MedicationStatementDetail extends React.Component {
               floatingLabelText='Date Asserted'
               container="inline" 
               mode="landscape"
-              value={ get(this, 'data.medicationStatementForm.dateAsserted') }
+              value={ get(formData, 'dateAsserted') }
               onChange={ this.changeState.bind(this, 'dateAsserted')}
+              floatingLabelFixed={true}
               /><br/>   
 
           <Row> 
@@ -166,9 +234,11 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='subjectDisplay'
                 name='subjectDisplay'
                 floatingLabelText='Patient - Display'
-                value={ get(this, 'data.medicationStatementForm.subjectDisplay') }
+                value={ get(formData, 'subjectDisplay') }
                 onChange={ this.changeState.bind(this, 'subjectDisplay')}
+                hintText="Jane Doe"
                 fullWidth
+                floatingLabelFixed={true}
                 /><br/>
             </Col>
             <Col md={4} >
@@ -177,37 +247,14 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='subjectReference'
                 name='subjectReference'
                 floatingLabelText='Patient - Reference'
-                value={ get(this, 'data.medicationStatementForm.subjectReference') }
+                value={ get(formData, 'subjectReference') }
                 onChange={ this.changeState.bind(this, 'subjectReference')}
+                hintText="Patient/12345"
                 fullWidth
+                floatingLabelFixed={true}
                 /><br/>         
             </Col>
           </Row>
-          <Row> 
-            <Col md={8} >
-              <TextField
-                id='informationSourceDisplayInput'
-                ref='informationSourceDisplay'
-                name='informationSourceDisplay'
-                floatingLabelText='Information Source - Display'
-                value={ get(this, 'data.medicationStatementForm.informationSourceDisplay') }
-                onChange={ this.changeState.bind(this, 'informationSourceDisplay')}
-                fullWidth
-                /><br/>
-            </Col>
-            <Col md={4} >
-              <TextField
-                id='informationSourceReferenceInput'
-                ref='informationSourceReference'
-                name='informationSourceReference'
-                floatingLabelText='Information Source - Reference'
-                value={ get(this, 'data.medicationStatementForm.informationSourceReference') }
-                onChange={ this.changeState.bind(this, 'informationSourceReference')}
-                fullWidth
-                /><br/>   
-            </Col>
-          </Row>
-
 
           <Row> 
             <Col md={8} >
@@ -216,8 +263,10 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='medicationDisplay'
                 name='medicationDisplay'
                 floatingLabelText='Medication - Display'
-                value={ get(this, 'data.medicationStatementForm.medicationDisplay') }
+                value={ get(formData, 'medicationDisplay') }
                 onChange={ this.changeState.bind(this, 'medicationDisplay')}
+                floatingLabelFixed={true}
+                hintText="Aleve - Naproxene Sodium"
                 fullWidth
                 /><br/>               
             </Col>
@@ -227,12 +276,42 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='medicationReference'
                 name='medicationReference'
                 floatingLabelText='Medication - Reference'
-                value={ get(this, 'data.medicationStatementForm.medicationReference') }
+                value={ get(formData, 'medicationReference') }
                 onChange={ this.changeState.bind(this, 'medicationReference')}
+                hintText="Medication/0280-6000"
+                floatingLabelFixed={true}
                 fullWidth
                 /><br/>     
             </Col>
           </Row> 
+          <Row> 
+            <Col md={8} >
+              <TextField
+                id='informationSourceDisplayInput'
+                ref='informationSourceDisplay'
+                name='informationSourceDisplay'
+                floatingLabelText='Information Source - Display'
+                value={ get(formData, 'informationSourceDisplay') }
+                onChange={ this.changeState.bind(this, 'informationSourceDisplay')}
+                hintText="Pain"
+                fullWidth
+                floatingLabelFixed={true}
+                /><br/>
+            </Col>
+            <Col md={4} >
+              <TextField
+                id='informationSourceReferenceInput'
+                ref='informationSourceReference'
+                name='informationSourceReference'
+                floatingLabelText='Information Source - Reference'
+                value={ get(formData, 'informationSourceReference') }
+                onChange={ this.changeState.bind(this, 'informationSourceReference')}
+                hintText="Condition/777"
+                fullWidth
+                floatingLabelFixed={true}
+                /><br/>   
+            </Col>
+          </Row>
 
           <Row> 
             <Col md={8} >
@@ -241,8 +320,10 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='reasonCodeDisplay'
                 name='reasonCodeDisplay'
                 floatingLabelText='Reason - Display Text'
-                value={ get(this, 'data.medicationStatementForm.reasonCodeDisplay') }
+                value={ get(formData, 'reasonCodeDisplay') }
                 onChange={ this.changeState.bind(this, 'reasonCodeDisplay')}
+                hintText="Pulled Muscle"
+                floatingLabelFixed={true}
                 fullWidth
                 /><br/>   
             </Col>
@@ -252,8 +333,10 @@ export default class MedicationStatementDetail extends React.Component {
                 ref='reasonCode'
                 name='reasonCode'
                 floatingLabelText='Reason - Code Value'
-                value={ get(this, 'data.medicationStatementForm.reasonCode') }
+                value={ get(formData, 'reasonCode') }
                 onChange={ this.changeState.bind(this, 'reasonCode')}
+                hintText="Observation/12345"
+                floatingLabelFixed={true}
                 fullWidth
                 /><br/>   
             </Col>
@@ -261,17 +344,17 @@ export default class MedicationStatementDetail extends React.Component {
 
 
           <Row> 
-            <Col md={2} >
+            {/* <Col md={2} >
               <TextField
                 id='takenInput'
                 ref='taken'
                 name='taken'
                 floatingLabelText='Medication Taken'
-                value={ get(this, 'data.medicationStatementForm.taken') }
+                value={ get(formData, 'taken') }
                 onChange={ this.changeState.bind(this, 'taken')}
                 fullWidth
                 /><br/>   
-            </Col>
+            </Col> */}
             <Col md={6} >
               <DatePicker
                 id='effectiveDateTimeInput'
@@ -280,24 +363,24 @@ export default class MedicationStatementDetail extends React.Component {
                 floatingLabelText='Effective Date/Time'
                 container="inline" 
                 mode="landscape"
-                value={ get(this, 'data.medicationStatementForm.effectiveDateTime') }
+                value={ get(formData, 'effectiveDateTime') }
                 onChange={ this.changeState.bind(this, 'effectiveDateTime')}
+                floatingLabelFixed={true}
                 fullWidth
                 /><br/>   
             </Col>
           </Row>
 
-
-
-          
           <TextField
             id='clinicalNoteInput'
             ref='clinicalNote'
             name='clinicalNote'
             floatingLabelText='Clinical Note'
-            value={ get(this, 'data.medicationStatementForm.clinicalNote') }
+            value={ get(formData, 'clinicalNote') }
             onChange={ this.changeState.bind(this, 'clinicalNote')}
             multiLine={true}
+            rows={5}
+            floatingLabelFixed={true}
             fullWidth
             /><br/>   
         </CardText>
@@ -307,74 +390,12 @@ export default class MedicationStatementDetail extends React.Component {
       </div>
     );
   }
-
-
-  addToContinuityOfCareDoc(){
-    console.log('addToContinuityOfCareDoc', Session.get('medicationStatementFormUpsert'));
-
-    var medicationStatementFormUpsert = Session.get('medicationStatementFormUpsert');
-
-
-    // medicationStatementStateChange.basedOn
-    // medicationStatementStateChange.dosage
-    
-
-    var newMedicationStatement = {
-      "resourceType": "MedicationStatement",
-      "partOf": [],
-      "status": "",
-      "medicationCodeableConcept": {
-        "coding": []
-      },
-      "effectiveDateTime": medicationStatementFormUpsert.effectiveDateTime,
-      "dateAsserted": medicationStatementFormUpsert.dateAsserted,
-      "informationSource": {
-        "reference": medicationStatementFormUpsert.informationSourceReference,
-        "display": medicationStatementFormUpsert.informationSourceDisplay,
-      },
-      "subject": {
-        "reference": medicationStatementFormUpsert.subjectReference,
-        "display": medicationStatementFormUpsert.subjectDisplay,
-      },
-      "medicationReference": {
-        "reference": medicationStatementFormUpsert.medicationReference,
-        "display": medicationStatementFormUpsert.medicationDisplay,
-      },
-      "taken": medicationStatementFormUpsert.taken,
-      "reasonCode": [{
-        "coding": [{
-          "code": medicationStatementFormUpsert.reasonCode,
-          "display": medicationStatementFormUpsert.reasonCodeDisplay
-        }]
-      }],
-      "note": [{
-        "text": medicationStatementFormUpsert.clinicalNote
-      }]
-    }
-
-    console.log('Lets write this to the profile... ', newMedicationStatement);
-
-    Meteor.users.update({_id: Meteor.userId()}, {$addToSet: {
-      'profile.continuityOfCare.medicationStatements': newMedicationStatement
-    }}, function(error, result){
-      if(error){
-        console.log('error', error);
-      }
-      if(result){
-        browserHistory.push('/continuity-of-care');
-      }
-    });
-  }
-
-
   determineButtons(medicationStatementId){
     if (medicationStatementId) {
       return (
         <div>
-          <RaisedButton id="saveMedicationStatementButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} style={{marginRight: '20px'}}  />
+          <RaisedButton id="updateMedicationStatementButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} style={{marginRight: '20px'}}  />
           <RaisedButton id="deleteMedicationStatementButton" label="Delete" onClick={this.handleDeleteButton.bind(this)} />
-
-          <RaisedButton id="addMedicationStatementToContinuityCareDoc" label="Add to CCD" primary={true} onClick={this.addToContinuityOfCareDoc.bind(this)} style={{float: 'right'}} />
         </div>
       );
     } else {
@@ -385,166 +406,186 @@ export default class MedicationStatementDetail extends React.Component {
   }
 
 
-
-  // this could be a mixin
-  changeState(field, event, value){
-    let medicationStatementStateChange;
-
-    if(process.env.NODE_ENV === "test") console.log("MedicationStatementDetail.changeState", field, event, value);
-
-    // by default, assume there's no other data and we're creating a new medicationStatement
-    if (Session.get('medicationStatementFormUpsert')) {
-      medicationStatementStateChange = Session.get('medicationStatementFormUpsert');
-    } else {
-      medicationStatementStateChange = defaultMedicationStatementForm;
-    }
-    
+  updateFormData(formData, field, textValue){
+    if(process.env.NODE_ENV === "test") console.log("MedicationDetail.updateFormData", formData, field, textValue);
 
     switch (field) {
-      case "medicationDisplay":
-        medicationStatementStateChange.medicationDisplay = value;
-        break;
-      case "medicationReference":
-        medicationStatementStateChange.medicationReference = value;
-        break;
-      case "basedOn":
-        medicationStatementStateChange.basedOn = value;
-        break;
       case "effectiveDateTime":
-        medicationStatementStateChange.effectiveDateTime = value;
+        set(formData, 'effectiveDateTime', textValue)
         break;
       case "dateAsserted":
-        medicationStatementStateChange.dateAsserted = value;
+        set(formData, 'dateAsserted', textValue)
         break;
       case "informationSourceReference":
-        medicationStatementStateChange.informationSourceReference = value;
-        break;
+        set(formData, 'informationSourceReference', textValue)
+        break;        
       case "informationSourceDisplay":
-        medicationStatementStateChange.informationSourceDisplay = value;
-        break;
+        set(formData, 'informationSourceDisplay', textValue)
+        break;        
       case "subjectDisplay":
-        medicationStatementStateChange.subjectDisplay = value;
+        set(formData, 'subjectDisplay', textValue)
         break;
       case "subjectReference":
-        medicationStatementStateChange.subjectReference = value;
-        break;
-      case "taken":
-        medicationStatementStateChange.taken = value;
+        set(formData, 'subjectReference', textValue)
         break;
       case "reasonCodeDisplay":
-        medicationStatementStateChange.reasonCodeDisplay = value;
+        set(formData, 'reasonCodeDisplay', textValue)
         break;
       case "reasonCode":
-        medicationStatementStateChange.reasonCode = value;
+        set(formData, 'reasonCode', textValue)
         break;
       case "dosage":
-        medicationStatementStateChange.dosage = value;
+        set(formData, 'dosage', textValue)
+        break;
+      case "medicationReference":
+        set(formData, 'medicationReference', textValue)
+        break;
+      case "medicationDisplay":
+        set(formData, 'medicationDisplay', textValue)
         break;
       case "clinicalNote":
-        medicationStatementStateChange.clinicalNote = value;
+        set(formData, 'clinicalNote', textValue)
         break;
-
+      case "status":
+        set(formData, 'status', textValue)
+        break;
       default:
-
     }
 
-    if(process.env.NODE_ENV === "test") {
-      console.log("medicationStatementStateChange", medicationStatementStateChange);
+    if(process.env.NODE_ENV === "test") console.log("formData", formData);
+    return formData;
+  }
+  updateMedicationStatement(medicationStatementData, field, textValue){
+    if(process.env.NODE_ENV === "test") console.log("MedicationDetail.updateMedication", medicationStatementData, field, textValue);
+
+    if(this.props.fhirVersion === 'v1.0.2'){
+      switch (field) {
+        case "effectiveDateTime":
+          set(medicationStatementData, 'effectiveDateTime', textValue)
+          break;
+        case "dateAsserted":
+          set(medicationStatementData, 'dateAsserted', textValue)
+          break;
+        case "informationSourceReference":
+          set(medicationStatementData, 'supportingInformation[0].reference', textValue)
+          break;        
+        case "informationSourceDisplay":
+          set(medicationStatementData, 'supportingInformation[0].display', textValue)
+          break;        
+        case "subjectDisplay":
+          set(medicationStatementData, 'patient.display', textValue)
+          break;
+        case "subjectReference":
+          set(medicationStatementData, 'patient.reference', textValue)
+          break;
+        case "reasonCodeDisplay":
+          set(medicationStatementData, 'reasonForUseCodeableConcept.coding[0].display', textValue)
+          break;
+        case "reasonCode":
+          set(medicationStatementData, 'reasonForUseCodeableConcept.coding[0].code', textValue)
+          break;
+        case "dosage":
+          set(medicationStatementData, 'dosage[0].text', textValue)
+          break;
+        case "medicationReference":
+          set(medicationStatementData, 'medicationReference.reference', textValue)
+          break;
+        case "medicationDisplay":
+          set(medicationStatementData, 'medicationReference.display', textValue)
+          break;
+        case "clinicalNote":
+          set(medicationStatementData, 'note[0].text', textValue)
+          break;
+        case "status":
+          set(medicationStatementData, 'status', textValue)
+          break;
+      }
     }
-    Session.set('medicationStatementFormUpsert', medicationStatementStateChange);
+    return medicationStatementData;
+  }
+
+  changeState(field, event, textValue){
+    if(process.env.NODE_ENV === "test") console.log("   ");
+    if(process.env.NODE_ENV === "test") console.log("MedicationDetail.changeState", field, textValue);
+    if(process.env.NODE_ENV === "test") console.log("this.state", this.state);
+
+    let formData = Object.assign({}, this.state.form);
+    let medicationStatementData = Object.assign({}, this.state.dstu2);
+
+    formData = this.updateFormData(formData, field, textValue);
+    medicationStatementData = this.updateMedicationStatement(medicationStatementData, field, textValue);
+
+    if(process.env.NODE_ENV === "test") console.log("medicationStatementData", medicationStatementData);
+    if(process.env.NODE_ENV === "test") console.log("formData", formData);
+
+    if(this.props.fhirVersion === 'v1.0.2'){
+      this.setState({dstu2: medicationStatementData})
+    }
+    if(this.props.fhirVersion === 'v3.0.1'){
+      this.setState({stu: medicationStatementData})
+    }
+    this.setState({form: formData})
   }
 
   handleSaveButton(){
-    let formUpsert = Session.get('medicationStatementFormUpsert');
+    if(process.env.NODE_ENV === "test") console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^&&')
+    console.log('Saving a new Medication Statement...', this.state)
 
-    if(process.env.NODE_ENV === "test") console.log("handleSaveButton", formUpsert);
+    let self = this;
+    let fhirMedicationStatementData = Object.assign({}, this.state.dstu2);
 
-    
+    if(process.env.NODE_ENV === "test") console.log('fhirMedicationStatementData', fhirMedicationStatementData);
 
-    var medicationStatementDiff;
-    
-    if(this.data.medicationStatement){
-      medicationStatementDiff = this.data.medicationStatement;
-    } else {
-      medicationStatementDiff = defaultMedicationStatement;
-    }
+    let medicationStatementValidator = MedicationStatementSchema.newContext();
+    medicationStatementValidator.validate(fhirMedicationStatementData)
 
-    if(process.env.NODE_ENV === "test") console.log("medicationStatementDiff", medicationStatementDiff);
+    console.log('IsValid: ', medicationStatementValidator.isValid())
+    console.log('ValidationErrors: ', medicationStatementValidator.validationErrors());
 
-    
-    if(formUpsert.effectiveDateTime){
-      set(medicationStatementDiff, 'effectiveDateTime', moment(formUpsert.effectiveDateTime).toDate());
-    }
-    if(formUpsert.dateAsserted){
-      set(medicationStatementDiff, 'dateAsserted', moment(formUpsert.dateAsserted).toDate());
-    }
-    if(formUpsert.informationSourceReference){
-      set(medicationStatementDiff, 'informationSource.reference', formUpsert.informationSourceReference);
-    }
-    if(formUpsert.informationSourceDisplay){
-      set(medicationStatementDiff, 'informationSource.display', formUpsert.informationSourceDisplay);
-    }
-    if(formUpsert.subjectReference){
-      set(medicationStatementDiff, 'subject.reference', formUpsert.subjectReference);
-    }
-    if(formUpsert.subjectDisplay){
-      set(medicationStatementDiff, 'subject.display', formUpsert.subjectDisplay);
-    }
-    if(formUpsert.medicationReference){
-      set(medicationStatementDiff, 'medicationReference.reference', formUpsert.medicationReference);
-    }
-    if(formUpsert.medicationDisplay){
-      set(medicationStatementDiff, 'medicationReference.display', formUpsert.medicationDisplay);
-    }
-    if(formUpsert.taken){
-      set(medicationStatementDiff, 'taken', formUpsert.taken);
-    }
-    if(formUpsert.clinicalNote){
-      set(medicationStatementDiff, 'note[0].text', formUpsert.clinicalNote);
-    }  
-    if(formUpsert.reasonCodeDisplay){
-      set(medicationStatementDiff, 'reasonCode[0].coding[0].display', formUpsert.reasonCodeDisplay);
-    }
-    if(formUpsert.reasonCode){
-      set(medicationStatementDiff, 'reasonCode[0].coding[0].code', formUpsert.reasonCode);
-    }
-
-    delete medicationStatementDiff._id;
-    delete medicationStatementDiff._document;
-    
-    if(process.env.NODE_ENV === "test") console.log("medicationStatementDiff", medicationStatementDiff);
-    
-    if (Session.get('selectedMedicationStatement')) {
+    if (this.state.medicationStatementId) {
       if(process.env.NODE_ENV === "test") console.log("Updating medicationStatement...");
 
+      delete fhirMedicationStatementData._id;
+
       MedicationStatements.update(
-        {_id: Session.get('selectedMedicationStatement')}, {$set: medicationStatementDiff }, function(error, result) {
+        {_id: this.state.medicationStatementId}, {$set: fhirMedicationStatementData }, {
+          validate: true, 
+          filter: false, 
+          removeEmptyStrings: false
+        }, function(error, result) {
           if (error) {
             console.log("error", error);
-
             Bert.alert(error.reason, 'danger');
           }
           if (result) {
-            HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: Session.get('selectedMedicationStatement')});
+            HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: self.state.medicationStatementId});
             Session.set('medicationStatementPageTabIndex', 1);
-            Session.set('selectedMedicationStatement', false);
+            Session.set('selectedMedicationStatementId', false);
             Session.set('medicationStatementFormUpsert', false);
             Bert.alert('MedicationStatement updated!', 'success');
           }
         });
     } else {
 
-      if(process.env.NODE_ENV === "test") console.log("create a new medicationStatement", medicationStatementDiff);
+      if(process.env.NODE_ENV === "test") console.log("create a new medicationStatement", fhirMedicationStatementData);
 
-      MedicationStatements.insert(medicationStatementDiff, function(error, result) {
+      set(fhirMedicationStatementData, 'meta.lastUpdated', moment().toDate())
+      set(fhirMedicationStatementData, 'meta.tag', [])  
+      fhirMedicationStatementData.meta.tag.push(this.props.fhirVersion);
+
+      MedicationStatements.insert(fhirMedicationStatementData, {
+        validate: true, 
+        filter: false, 
+        removeEmptyStrings: false
+      }, function(error, result) {
         if (error) {
           console.log("error", error);
           Bert.alert(error.reason, 'danger');
         }
         if (result) {
-          HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: result});
+          HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: self.state.medicationStatementId});
           Session.set('medicationStatementPageTabIndex', 1);
-          Session.set('selectedMedicationStatement', false);
+          Session.set('selectedMedicationStatementId', false);
           Session.set('medicationStatementFormUpsert', false);
           Bert.alert('MedicationStatement added!', 'success');
         }
@@ -557,14 +598,15 @@ export default class MedicationStatementDetail extends React.Component {
   }
 
   handleDeleteButton(){
-    MedicationStatements.remove({_id: Session.get('selectedMedicationStatement')}, function(error, result){
+    let self = this;
+    MedicationStatements.remove({_id: this.state.medicationStatementId}, function(error, result){
       if (error) {
         Bert.alert(error.reason, 'danger');
       }
       if (result) {
-        HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: Session.get('selectedMedicationStatement')});
+        HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: self.state.medicationStatementId});
         Session.set('medicationStatementPageTabIndex', 1);
-        Session.set('selectedMedicationStatement', false);
+        Session.set('selectedMedicationStatementId', false);
         Session.set('medicationStatementFormUpsert', false);
         Bert.alert('MedicationStatement removed!', 'success');
       }
@@ -574,6 +616,10 @@ export default class MedicationStatementDetail extends React.Component {
 
 
 MedicationStatementDetail.propTypes = {
-  hasUser: PropTypes.object
+  id: PropTypes.string,
+  fhirVersion: PropTypes.string,
+  medicationStatementId: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+  medicationStatement: PropTypes.oneOfType([PropTypes.object, PropTypes.bool])
 };
 ReactMixin(MedicationStatementDetail.prototype, ReactMeteorData);
+export default MedicationStatementDetail;
