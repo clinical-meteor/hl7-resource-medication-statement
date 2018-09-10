@@ -25,7 +25,6 @@ import { moment } from 'meteor/momentjs:moment';
 
 import { medicationStatement2, medicationStatement3 } from '../lib/defaultStatements.js';
 
-Session.setDefault('medicationStatementFormUpsert', false);
 Session.setDefault('originalMedicationStatement', false);
 
 export class MedicationStatementDetail extends React.Component {
@@ -547,12 +546,8 @@ export class MedicationStatementDetail extends React.Component {
 
       delete fhirMedicationStatementData._id;
 
-      MedicationStatements.update(
-        {_id: this.state.medicationStatementId}, {$set: fhirMedicationStatementData }, {
-          validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
-          filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
-          removeEmptyStrings: get(Meteor, 'settings.public.defaults.schemas.removeEmptyStrings', false)
-        }, function(error, result) {
+      MedicationStatements._collection.update(
+        {_id: this.state.medicationStatementId}, {$set: fhirMedicationStatementData }, function(error, result) {
           if (error) {
             console.log("error", error);
             Bert.alert(error.reason, 'danger');
@@ -561,7 +556,6 @@ export class MedicationStatementDetail extends React.Component {
             HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: self.state.medicationStatementId});
             Session.set('medicationStatementPageTabIndex', 1);
             Session.set('selectedMedicationStatementId', false);
-            Session.set('medicationStatementFormUpsert', false);
             Bert.alert('MedicationStatement updated!', 'success');
           }
         });
@@ -573,11 +567,7 @@ export class MedicationStatementDetail extends React.Component {
       set(fhirMedicationStatementData, 'meta.tag', [])  
       fhirMedicationStatementData.meta.tag.push(this.props.fhirVersion);
 
-      MedicationStatements.insert(fhirMedicationStatementData, {
-        validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
-        filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
-        removeEmptyStrings: get(Meteor, 'settings.public.defaults.schemas.removeEmptyStrings', false)
-      }, function(error, result) {
+      MedicationStatements._collection.insert(fhirMedicationStatementData, function(error, result) {
         if (error) {
           console.log("error", error);
           Bert.alert(error.reason, 'danger');
@@ -586,7 +576,6 @@ export class MedicationStatementDetail extends React.Component {
           HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: self.state.medicationStatementId});
           Session.set('medicationStatementPageTabIndex', 1);
           Session.set('selectedMedicationStatementId', false);
-          Session.set('medicationStatementFormUpsert', false);
           Bert.alert('MedicationStatement added!', 'success');
         }
       });
@@ -607,7 +596,6 @@ export class MedicationStatementDetail extends React.Component {
         HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: self.state.medicationStatementId});
         Session.set('medicationStatementPageTabIndex', 1);
         Session.set('selectedMedicationStatementId', false);
-        Session.set('medicationStatementFormUpsert', false);
         Bert.alert('MedicationStatement removed!', 'success');
       }
     });
