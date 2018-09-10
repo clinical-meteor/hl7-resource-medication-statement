@@ -549,9 +549,9 @@ export class MedicationStatementDetail extends React.Component {
 
       MedicationStatements.update(
         {_id: this.state.medicationStatementId}, {$set: fhirMedicationStatementData }, {
-          validate: true, 
-          filter: false, 
-          removeEmptyStrings: false
+          validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
+          filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
+          removeEmptyStrings: get(Meteor, 'settings.public.defaults.schemas.removeEmptyStrings', false)
         }, function(error, result) {
           if (error) {
             console.log("error", error);
@@ -574,9 +574,9 @@ export class MedicationStatementDetail extends React.Component {
       fhirMedicationStatementData.meta.tag.push(this.props.fhirVersion);
 
       MedicationStatements.insert(fhirMedicationStatementData, {
-        validate: true, 
-        filter: false, 
-        removeEmptyStrings: false
+        validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
+        filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
+        removeEmptyStrings: get(Meteor, 'settings.public.defaults.schemas.removeEmptyStrings', false)
       }, function(error, result) {
         if (error) {
           console.log("error", error);

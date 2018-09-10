@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-medication-statement',
-  version: '1.3.1',
+  version: '1.3.2',
   summary: 'HL7 FHIR Resource - MedicationStatement',
   git: 'https://github.com/clinical-meteor/hl7-resource-medication-statement',
   documentation: 'README.md'
@@ -45,5 +45,7 @@ Package.onUse(function (api) {
 });
 
 Npm.depends({
-  "simpl-schema": "1.5.3"
+  "simpl-schema": "1.5.3",
+  "moment": "2.22.2",
+  "lodash": "4.17.4"
 })
