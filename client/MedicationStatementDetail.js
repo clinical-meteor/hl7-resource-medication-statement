@@ -588,7 +588,7 @@ export class MedicationStatementDetail extends React.Component {
 
   handleDeleteButton(){
     let self = this;
-    MedicationStatements.remove({_id: this.state.medicationStatementId}, function(error, result){
+    MedicationStatements._collection.remove({_id: this.state.medicationStatementId}, function(error, result){
       if (error) {
         Bert.alert(error.reason, 'danger');
       }
