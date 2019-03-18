@@ -61,7 +61,7 @@ const flattenMedicationStatement = function(statement, fhirVersion){
   return newRow;
 }
 
-export default class MedicationStatementsTable extends React.Component {
+export class MedicationStatementsTable extends React.Component {
 
   getMeteorData() {
 
@@ -191,3 +191,4 @@ export default class MedicationStatementsTable extends React.Component {
 
 
 ReactMixin(MedicationStatementsTable.prototype, ReactMeteorData);
+export default MedicationStatementsTable;

@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-medication-statement',
-  version: '1.3.8',
+  version: '1.3.10',
   summary: 'HL7 FHIR Resource - MedicationStatement',
   git: 'https://github.com/clinical-meteor/hl7-resource-medication-statement',
   documentation: 'README.md'
@@ -23,8 +23,8 @@ Package.onUse(function (api) {
   api.use('http');
   api.use('react-meteor-data@0.2.15');
 
-  api.use('clinical:glass-ui@2.1.4');
-  api.use('clinical:extended-api@2.2.2');
+  api.use('clinical:glass-ui@2.4.6');
+  api.use('clinical:extended-api@2.4.0');
   api.use('clinical:base-model@1.4.0');
   api.use('matb33:collection-hooks@0.7.15');
   api.use('clinical:alert@2.1.3');
