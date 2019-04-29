@@ -6,7 +6,9 @@ import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin from 'react-mixin';
 import { Table } from 'react-bootstrap';
 import Toggle from 'material-ui/Toggle';
-// import { moment } from 'meteor/momentjs/moment';
+
+import { FaTags, FaCode, FaPuzzlePiece, FaLock  } from 'react-icons/fa';
+import { GoTrashcan } from 'react-icons/go'
 
 const flattenMedicationStatement = function(statement, fhirVersion){
   console.log('flattenMedicationStatement', statement)
@@ -141,6 +143,18 @@ export class MedicationStatementsTable extends React.Component {
       );
     }
   }
+  removeRecord(_id){
+    console.log('Remove medication statement ', _id)
+    MedicationStatements._collection.remove({_id: _id})
+  }
+  showSecurityDialog(medicationStatement){
+    console.log('showSecurityDialog', medicationStatement)
+
+    Session.set('securityDialogResourceJson', MedicationStatements.findOne(get(medicationStatement, '_id')));
+    Session.set('securityDialogResourceType', 'MedicationStatement');
+    Session.set('securityDialogResourceId', get(medicationStatement, '_id'));
+    Session.set('securityDialogOpen', true);
+  }
   rowClick(id){
     Session.set('medicationStatementsUpsert', false);
     Session.set('selectedMedicationStatementId', id);
@@ -150,9 +164,17 @@ export class MedicationStatementsTable extends React.Component {
     let tableRows = [];
     for (var i = 0; i < this.data.medicationStatements.length; i++) {
 
+      let rowStyle = {
+        cursor: 'pointer'
+      }
+      if(get(this.data.medicationStatements[i], 'modifierExtension[0]')){
+        rowStyle.color = "orange";
+      }
+
       tableRows.push(
-        <tr key={i} className="medicationStatementRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.medicationStatements[i]._id)} >
+        <tr key={i} className="medicationStatementRow" style={rowStyle} onClick={ this.rowClick.bind('this', this.data.medicationStatements[i]._id)} >
           { this.renderToggles(this.data.displayToggle, this.data.medicationStatements[i]) }
+          { this.renderActionIcons(this.data.medicationStatements[i]) }
           <td className='medication'>{ this.data.medicationStatements[i].medication }</td>
           <td className='effectiveDateTime'>{ moment(this.data.medicationStatements[i].effectiveDateTime).format("YYYY-MM-DD") }</td>
           <td className='informationSource'>{ this.data.medicationStatements[i].informationSource }</td>
@@ -171,6 +193,8 @@ export class MedicationStatementsTable extends React.Component {
         <thead>
           <tr>
             { this.renderTogglesHeader(this.data.displayToggle) }
+            { this.renderActionIconsHeader() }
+
             <th className='medication'>medication</th>
             <th className='effectiveDateTime'>date /time</th>
             <th className='informationSource'>source</th>

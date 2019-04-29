@@ -3,7 +3,7 @@ Meteor.methods({
   createMedicationStatement:function(medicationStatementObject){
     check(medicationStatementObject, Object);
 
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NIGHTWATCH || this.userId) {
         console.log('Creating MedicationStatement...');
         MedicationStatements.insert(medicationStatementObject, function(error, result){
         if (error) {
@@ -14,8 +14,7 @@ Meteor.methods({
         }
         });
     } else {
-        console.log('This command can only be run in a test environment.');
-        console.log('Try setting NODE_ENV=test');
+        console.log('Not authorized.  Try logging in or setting NIGHTWATCH=true')
     }
   }, 
   initializeMedicationStatements:function(){
@@ -313,23 +312,21 @@ Meteor.methods({
   },
   removeMedicationStatementById: function(medicationStatementId){
     check(medicationStatementId, String);
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NIGHTWATCH || this.userId) {
         console.log('-----------------------------------------');
         console.log('Removing medicationStatement... ');
         MedicationStatements.remove({_id: medicationStatementId});
     } else {
-        console.log('This command can only be run in a test environment.');
-        console.log('Try setting NODE_ENV=test');
+        console.log('Not authorized.  Try logging in or setting NIGHTWATCH=true')
     }
   },
   dropMedicationStatements: function(){
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NIGHTWATCH || this.userId) {
         console.log('-----------------------------------------');
         console.log('Dropping medicationStatements... ');
         MedicationStatements.remove({});
     } else {
-        console.log('This command can only be run in a test environment.');
-        console.log('Try setting NODE_ENV=test');
+        console.log('Not authorized.  Try logging in or setting NIGHTWATCH=true')
     }
     }
 
