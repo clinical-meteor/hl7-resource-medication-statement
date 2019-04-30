@@ -143,6 +143,30 @@ export class MedicationStatementsTable extends React.Component {
       );
     }
   }
+  renderActionIconsHeader(){
+    if (!this.props.hideActionIcons) {
+      return (
+        <th className='actionIcons' style={{minWidth: '120px'}}>Actions</th>
+      );
+    }
+  }
+  renderActionIcons(medicationStatement ){
+    if (!this.props.hideActionIcons) {
+      let iconStyle = {
+        marginLeft: '4px', 
+        marginRight: '4px', 
+        marginTop: '4px', 
+        fontSize: '120%'
+      }
+
+      return (
+        <td className='actionIcons' style={{minWidth: '120px'}}>
+          <FaTags style={iconStyle} onClick={this.showSecurityDialog.bind(this, medicationStatement)} />
+          <GoTrashcan style={iconStyle} onClick={this.removeRecord.bind(this, medicationStatement._id)} />  
+        </td>
+      );
+    }
+  }
   removeRecord(_id){
     console.log('Remove medication statement ', _id)
     MedicationStatements._collection.remove({_id: _id})
