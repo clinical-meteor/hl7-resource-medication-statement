@@ -132,7 +132,7 @@ export class MedicationStatementsTable extends React.Component {
   renderDateHeader(displayDates){
     if (displayDates) {
       return (
-        <th className='date'>asserted at</th>
+        <th className='date'>Asserted At</th>
       );
     }
   }
@@ -200,7 +200,7 @@ export class MedicationStatementsTable extends React.Component {
           { this.renderToggles(this.data.displayToggle, this.data.medicationStatements[i]) }
           { this.renderActionIcons(this.data.medicationStatements[i]) }
           <td className='medication'>{ this.data.medicationStatements[i].medication }</td>
-          <td className='effectiveDateTime'>{ moment(this.data.medicationStatements[i].effectiveDateTime).format("YYYY-MM-DD") }</td>
+          {/* <td className='effectiveDateTime'>{ moment(this.data.medicationStatements[i].effectiveDateTime).format("YYYY-MM-DD") }</td> */}
           <td className='informationSource'>{ this.data.medicationStatements[i].informationSource }</td>
           <td className='subject'>{ this.data.medicationStatements[i].subjectDisplay }</td>
           {/* <td className='taken'>{ this.data.medicationStatements[i].taken }</td> */}
@@ -219,12 +219,12 @@ export class MedicationStatementsTable extends React.Component {
             { this.renderTogglesHeader(this.data.displayToggle) }
             { this.renderActionIconsHeader() }
 
-            <th className='medication'>medication</th>
-            <th className='effectiveDateTime'>date /time</th>
-            <th className='informationSource'>source</th>
-            <th className='subject'>subject</th>
+            <th className='medication'>Medication</th>
+            {/* <th className='effectiveDateTime'>Date /time</th> */}
+            <th className='informationSource'>Source</th>
+            <th className='subject'>Subject</th>
             {/* <th className='taken'>taken</th> */}
-            <th className='reason'>reason</th>
+            <th className='reason'>Reason</th>
             {/* <th className='dosage'>dosage</th> */}
             { this.renderDateHeader(this.data.displayDates) }            
           </tr>
