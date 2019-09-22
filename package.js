@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-medication-statement',
-  version: '1.3.14',
+  version: '1.3.15',
   summary: 'HL7 FHIR Resource - MedicationStatement',
   git: 'https://github.com/clinical-meteor/hl7-resource-medication-statement',
   documentation: 'README.md'
