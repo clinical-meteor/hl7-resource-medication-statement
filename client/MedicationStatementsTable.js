@@ -1,11 +1,16 @@
-import { Card, CardActions, CardMedia, CardText, CardTitle } from 'material-ui/Card';
-import { get, has } from 'lodash';
+import { 
+  Checkbox, 
+  Table, 
+  TableRow, 
+  TableCell,
+  TableBody
+} from '@material-ui/core';
+
+import { get } from 'lodash';
 
 import React from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin from 'react-mixin';
-import { Table } from 'react-bootstrap';
-import Toggle from 'material-ui/Toggle';
 
 import { FaTags, FaCode, FaPuzzlePiece, FaLock  } from 'react-icons/fa';
 import { GoTrashcan } from 'react-icons/go'
@@ -113,40 +118,40 @@ export class MedicationStatementsTable extends React.Component {
   renderTogglesHeader(displayToggle){
     if (displayToggle) {
       return (
-        <th className="toggle">toggle</th>
+        <TableCell className="toggle">toggle</TableCell>
       );
     }
   }
   renderToggles(displayToggle, patientId ){
     if (displayToggle) {
       return (
-        <td className="toggle">
-            <Toggle
-              defaultToggled={true}
+        <TableCell className="toggle">
+            <Checkbox
+              defaultChecked={true}
               //style={styles.toggle}
             />
-          </td>
+          </TableCell>
       );
     }
   }
   renderDateHeader(displayDates){
     if (displayDates) {
       return (
-        <th className='date'>Asserted At</th>
+        <TableCell className='date'>Asserted At</TableCell>
       );
     }
   }
   renderDate(displayDates, newDate ){
     if (displayDates) {
       return (
-        <td className='dateAsserted'>{ moment(newDate).format('YYYY-MM-DD') }</td>
+        <TableCell className='dateAsserted'>{ moment(newDate).format('YYYY-MM-DD') }</TableCell>
       );
     }
   }
   renderActionIconsHeader(){
     if (!this.props.hideActionIcons) {
       return (
-        <th className='actionIcons' style={{minWidth: '120px'}}>Actions</th>
+        <TableCell className='actionIcons' style={{minWidth: '120px'}}>Actions</TableCell>
       );
     }
   }
@@ -160,10 +165,10 @@ export class MedicationStatementsTable extends React.Component {
       }
 
       return (
-        <td className='actionIcons' style={{minWidth: '120px'}}>
+        <TableCell className='actionIcons' style={{minWidth: '120px'}}>
           <FaTags style={iconStyle} onClick={this.showSecurityDialog.bind(this, medicationStatement)} />
           <GoTrashcan style={iconStyle} onClick={this.removeRecord.bind(this, medicationStatement._id)} />  
-        </td>
+        </TableCell>
       );
     }
   }
@@ -196,39 +201,38 @@ export class MedicationStatementsTable extends React.Component {
       }
 
       tableRows.push(
-        <tr key={i} className="medicationStatementRow" style={rowStyle} onClick={ this.rowClick.bind('this', this.data.medicationStatements[i]._id)} >
+        <TableRow key={i} className="medicationStatementRow" style={rowStyle} onClick={ this.rowClick.bind('this', this.data.medicationStatements[i]._id)} >
           { this.renderToggles(this.data.displayToggle, this.data.medicationStatements[i]) }
           { this.renderActionIcons(this.data.medicationStatements[i]) }
-          <td className='medication'>{ this.data.medicationStatements[i].medication }</td>
-          {/* <td className='effectiveDateTime'>{ moment(this.data.medicationStatements[i].effectiveDateTime).format("YYYY-MM-DD") }</td> */}
-          <td className='informationSource'>{ this.data.medicationStatements[i].informationSource }</td>
-          <td className='subject'>{ this.data.medicationStatements[i].subjectDisplay }</td>
-          {/* <td className='taken'>{ this.data.medicationStatements[i].taken }</td> */}
-          <td className='reason'>{ this.data.medicationStatements[i].reasonCodeDisplay }</td>
-          {/* <td className='dosage'>{ this.data.medicationStatements[i].dosage }</td> */}
+          <TableCell className='medication'>{ this.data.medicationStatements[i].medication }</TableCell>
+          {/* <TableCell className='effectiveDateTime'>{ moment(this.data.medicationStatements[i].effectiveDateTime).format("YYYY-MM-DD") }</TableCell> */}
+          <TableCell className='informationSource'>{ this.data.medicationStatements[i].informationSource }</TableCell>
+          <TableCell className='subject'>{ this.data.medicationStatements[i].subjectDisplay }</TableCell>
+          {/* <TableCell className='taken'>{ this.data.medicationStatements[i].taken }</TableCell> */}
+          <TableCell className='reason'>{ this.data.medicationStatements[i].reasonCodeDisplay }</TableCell>
+          {/* <TableCell className='dosage'>{ this.data.medicationStatements[i].dosage }</TableCell> */}
           { this.renderDate(this.data.displayDates, this.data.medicationStatements[i].dateAsserted) }
-
-        </tr>
+        </TableRow>
       )
     }
 
     return(
       <Table id='medicationStatementsTable' hover >
-        <thead>
-          <tr>
+        <TableHead>
+          <TableRow>
             { this.renderTogglesHeader(this.data.displayToggle) }
             { this.renderActionIconsHeader() }
 
-            <th className='medication'>Medication</th>
-            {/* <th className='effectiveDateTime'>Date /time</th> */}
-            <th className='informationSource'>Source</th>
-            <th className='subject'>Subject</th>
-            {/* <th className='taken'>taken</th> */}
-            <th className='reason'>Reason</th>
-            {/* <th className='dosage'>dosage</th> */}
+            <TableCell className='medication'>Medication</TableCell>
+            {/* <TableCell className='effectiveDateTime'>Date /time</TableCell> */}
+            <TableCell className='informationSource'>Source</TableCell>
+            <TableCell className='subject'>Subject</TableCell>
+            {/* <TableCell className='taken'>taken</TableCell> */}
+            <TableCell className='reason'>Reason</TableCell>
+            {/* <TableCell className='dosage'>dosage</TableCell> */}
             { this.renderDateHeader(this.data.displayDates) }            
-          </tr>
-        </thead>
+          </TableRow>
+        </TableHead>
         <tbody>
           { tableRows }
         </tbody>

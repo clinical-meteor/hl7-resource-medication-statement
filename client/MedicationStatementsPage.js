@@ -1,6 +1,18 @@
-import { CardText, CardTitle } from 'material-ui/Card';
-import {Tab, Tabs} from 'material-ui/Tabs';
-import { GlassCard, VerticalCanvas, Glass } from 'meteor/clinical:glass-ui';
+import { 
+  CssBaseline,
+  Grid, 
+  Container,
+  Divider,
+  Card,
+  CardHeader,
+  CardContent,
+  Button,
+  Tab, 
+  Tabs,
+  Typography,
+  Box
+} from '@material-ui/core';
+import { StyledCard, PageCanvas } from 'material-fhir-ui';
 
 import MedicationStatementDetail from './MedicationStatementDetail';
 import MedicationStatementsTable from './MedicationStatementsTable';
@@ -11,6 +23,29 @@ import { Session } from 'meteor/session';
 import React  from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin  from 'react-mixin';
+
+//=============================================================================================================================================
+// TABS
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <Typography
+      component="div"
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      <Box p={3}>{children}</Box>
+    </Typography>
+  );
+}
+
+//=============================================================================================================================================
+// COMPONENT
 
 Session.setDefault('fhirVersion', 'v1.0.2');
 Session.setDefault('selectedMedicationStatementId', false);
@@ -30,7 +65,7 @@ export class MedicationStatementsPage extends React.Component {
       selectedMedicationStatementId: Session.get('selectedMedicationStatementId'),
       fhirVersion: Session.get('fhirVersion'),
       selectedMedicationStatement: false
-    };
+    }; 
 
     if(Session.get('fhirVersion')){
       data.fhirVersion = Session.get('fhirVersion')
@@ -60,35 +95,35 @@ export class MedicationStatementsPage extends React.Component {
 
   render() {
     if(process.env.NODE_ENV === "test") console.log('In MedicationStatementsPage render');
+
+    let headerHeight = 64;
+    if(get(Meteor, 'settings.public.defaults.prominantHeader')){
+      headerHeight = 128;
+    }
+
     return (
       <div id='medicationStatementsPage'>
-        <VerticalCanvas>
-          <GlassCard height='auto'>
-            <CardTitle title='Medication Statements' />
-            <CardText>
-              <Tabs id="medicationStatementsPageTabs" default value={this.data.tabIndex} onChange={this.handleTabChange} initialSelectedIndex={1}>
-               <Tab className='newMedicationStatementTab' label='New' style={this.data.style.tab} onActive={ this.onNewTab } value={0}>
-                 <MedicationStatementDetail 
-                 id='newMedicationStatement' 
-                 fhirVersion={ this.data.fhirVersion }
-                 />  
-               </Tab>
-               <Tab className="medicationStatementListTab" label='MedicationStatements' onActive={this.handleActive} style={this.data.style.tab} value={1}>
+        <StyledCard height="auto" scrollable={true} margin={20} headerHeight={headerHeight} >
+            <CardHeader title='Medication Statements' />
+            <CardContent>
+              <Tabs id="allergyIntolerancesPageTabs" value={this.data.tabIndex} onChange={this.handleTabChange } aria-label="simple tabs example">
+                <Tab label="History" value={0} />
+                <Tab label="New" value={1} />
+              </Tabs>
+              <TabPanel >
                 <MedicationStatementsTable fhirVersion={ this.data.fhirVersion } />
-               </Tab>
-               <Tab className="medicationStatementDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>
-                 <MedicationStatementDetail 
-                  id='medicationStatementDetails'
-                  fhirVersion={ this.data.fhirVersion }
-                  medicationStatement={ this.data.selectedMedicationStatement }
-                  medicationStatementId={ this.data.selectedMedicationStatementId } 
-                  showDatePicker={true} 
-                />
-               </Tab>
-             </Tabs>
-            </CardText>
-          </GlassCard>
-        </VerticalCanvas>
+              </TabPanel >
+              <TabPanel >
+                <MedicationStatementDetail 
+                    id='medicationStatementDetails'
+                    fhirVersion={ this.data.fhirVersion }
+                    medicationStatement={ this.data.selectedMedicationStatement }
+                    medicationStatementId={ this.data.selectedMedicationStatementId } 
+                    showDatePicker={true} 
+                  />
+              </TabPanel >
+            </CardContent>
+        </StyledCard>        
       </div>
     );
   }

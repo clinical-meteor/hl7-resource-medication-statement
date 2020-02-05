@@ -7,21 +7,25 @@
 // =======================================================================
 
 
+import { 
+  Grid,
+  Card,
+  Button,
+  CardHeader,
+  CardContent,
+  CardActions,
+  Typography,
+  TextField,
+  DatePicker
+} from '@material-ui/core';
 
-
-import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
-import { Col, Grid, Row } from 'react-bootstrap';
 import { get, has, set } from 'lodash';
 
-import DatePicker from 'material-ui/DatePicker';
-import RaisedButton from 'material-ui/RaisedButton';
 import React from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin from 'react-mixin';
-import TextField from 'material-ui/TextField';
-import { browserHistory } from 'react-router';
 import PropTypes from 'prop-types';
-import { moment } from 'meteor/momentjs:moment';
+import { moment } from 'moment';
 
 import { medicationStatement2, medicationStatement3 } from '../lib/defaultStatements.js';
 
@@ -213,176 +217,164 @@ export class MedicationStatementDetail extends React.Component {
 
     return (
       <div id={this.props.id} className="medicationStatementDetail">
-        <CardText>
-            <DatePicker
+        <CardContent>
+            {/* <DatePicker
               id='dateAssertedInput'
-              ref='dateAsserted'
               name='dateAsserted'
-              floatingLabelText='Date Asserted'
+              label='Date Asserted'
               container="inline" 
               mode="landscape"
               value={ get(formData, 'dateAsserted') }
               onChange={ this.changeState.bind(this, 'dateAsserted')}
-              floatingLabelFixed={true}
-              /><br/>   
+              //floatingLabelFixed={true}
+              /><br/>    */}
 
-          <Row> 
-            <Col md={8} >
+          <Grid container spacing={3}>
+            <Grid item md={8}>          
               <TextField
                 id='subjectDisplayInput'
-                ref='subjectDisplay'
                 name='subjectDisplay'
-                floatingLabelText='Patient - Display'
+                label='Patient - Display'
                 value={ get(formData, 'subjectDisplay') }
                 onChange={ this.changeState.bind(this, 'subjectDisplay')}
                 hintText="Jane Doe"
                 fullWidth
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 /><br/>
-            </Col>
-            <Col md={4} >
+            </Grid>
+            <Grid item md={4} >
               <TextField
                 id='subjectReferenceInput'
-                ref='subjectReference'
                 name='subjectReference'
-                floatingLabelText='Patient - Reference'
+                label='Patient - Reference'
                 value={ get(formData, 'subjectReference') }
                 onChange={ this.changeState.bind(this, 'subjectReference')}
                 hintText="Patient/12345"
                 fullWidth
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 /><br/>         
-            </Col>
-          </Row>
+            </Grid>
+          </Grid>
 
-          <Row> 
-            <Col md={8} >
+
+          <Grid container spacing={3}>
+            <Grid item md={8}>     
               <TextField
                 id='medicationDisplayInput'
-                ref='medicationDisplay'
                 name='medicationDisplay'
-                floatingLabelText='Medication - Display'
+                label='Medication - Display'
                 value={ get(formData, 'medicationDisplay') }
                 onChange={ this.changeState.bind(this, 'medicationDisplay')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 hintText="Aleve - Naproxene Sodium"
                 fullWidth
                 /><br/>               
-            </Col>
-            <Col md={4} >
+            </Grid>
+            <Grid md={4} >
               <TextField
                 id='medicationReferenceInput'
-                ref='medicationReference'
                 name='medicationReference'
-                floatingLabelText='Medication - Reference'
+                label='Medication - Reference'
                 value={ get(formData, 'medicationReference') }
                 onChange={ this.changeState.bind(this, 'medicationReference')}
                 hintText="Medication/0280-6000"
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>     
-            </Col>
-          </Row> 
-          <Row> 
-            <Col md={8} >
+            </Grid>
+          </Grid> 
+          <Grid container spacing={3}>
+            <Grid item md={8}>     
               <TextField
                 id='informationSourceDisplayInput'
-                ref='informationSourceDisplay'
                 name='informationSourceDisplay'
-                floatingLabelText='Information Source - Display'
+                label='Information Source - Display'
                 value={ get(formData, 'informationSourceDisplay') }
                 onChange={ this.changeState.bind(this, 'informationSourceDisplay')}
                 hintText="Pain"
                 fullWidth
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 /><br/>
-            </Col>
-            <Col md={4} >
+            </Grid>
+            <Grid md={4} >
               <TextField
                 id='informationSourceReferenceInput'
-                ref='informationSourceReference'
                 name='informationSourceReference'
-                floatingLabelText='Information Source - Reference'
+                label='Information Source - Reference'
                 value={ get(formData, 'informationSourceReference') }
                 onChange={ this.changeState.bind(this, 'informationSourceReference')}
                 hintText="Condition/777"
                 fullWidth
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 /><br/>   
-            </Col>
-          </Row>
+            </Grid>
+          </Grid>
 
-          <Row> 
-            <Col md={8} >
+          <Grid container spacing={3}>
+            <Grid item md={8}>     
               <TextField
                 id='reasonCodeDisplayInput'
-                ref='reasonCodeDisplay'
                 name='reasonCodeDisplay'
-                floatingLabelText='Reason - Display Text'
+                label='Reason - Display Text'
                 value={ get(formData, 'reasonCodeDisplay') }
                 onChange={ this.changeState.bind(this, 'reasonCodeDisplay')}
                 hintText="Pulled Muscle"
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>   
-            </Col>
-            <Col md={4} >
+            </Grid>
+            <Grid md={4} >
               <TextField
                 id='reasonCodeInput'
-                ref='reasonCode'
                 name='reasonCode'
-                floatingLabelText='Reason - Code Value'
+                label='Reason - Code Value'
                 value={ get(formData, 'reasonCode') }
                 onChange={ this.changeState.bind(this, 'reasonCode')}
                 hintText="Observation/12345"
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>   
-            </Col>
-          </Row>
+            </Grid>
+          </Grid>
 
-
-          <Row> 
-            {/* <Col md={2} >
+          <Grid container spacing={3}>
+            {/* <Grid md={2} >
               <TextField
                 id='takenInput'
-                ref='taken'
                 name='taken'
-                floatingLabelText='Medication Taken'
+                label='Medication Taken'
                 value={ get(formData, 'taken') }
                 onChange={ this.changeState.bind(this, 'taken')}
                 fullWidth
                 /><br/>   
-            </Col> */}
-            <Col md={6} >
+            </Grid> */}
+            <Grid item md={6} >
               <DatePicker
                 id='effectiveDateTimeInput'
-                ref='effectiveDateTime'
                 name='effectiveDateTime'
-                floatingLabelText='Effective Date/Time'
+                label='Effective Date/Time'
                 container="inline" 
                 mode="landscape"
                 value={ get(formData, 'effectiveDateTime') }
                 onChange={ this.changeState.bind(this, 'effectiveDateTime')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>   
-            </Col>
-          </Row>
+            </Grid>
+          </Grid>
 
           <TextField
             id='clinicalNoteInput'
-            ref='clinicalNote'
             name='clinicalNote'
-            floatingLabelText='Clinical Note'
+            label='Clinical Note'
             value={ get(formData, 'clinicalNote') }
             onChange={ this.changeState.bind(this, 'clinicalNote')}
             multiLine={true}
             rows={5}
-            floatingLabelFixed={true}
+            //floatingLabelFixed={true}
             fullWidth
             /><br/>   
-        </CardText>
+        </CardContent>
         <CardActions>
           { this.determineButtons(this.data.medicationStatementId) }
         </CardActions>
@@ -393,13 +385,13 @@ export class MedicationStatementDetail extends React.Component {
     if (medicationStatementId) {
       return (
         <div>
-          <RaisedButton id="updateMedicationStatementButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} style={{marginRight: '20px'}}  />
-          <RaisedButton id="deleteMedicationStatementButton" label="Delete" onClick={this.handleDeleteButton.bind(this)} />
+          <Button id="updateMedicationStatementButton" primary={true} onClick={this.handleSaveButton.bind(this)} style={{marginRight: '20px'}} >Save</Button>
+          <Button id="deleteMedicationStatementButton" onClick={this.handleDeleteButton.bind(this)} >Delete</Button>          
         </div>
       );
     } else {
       return(
-        <RaisedButton id="saveMedicationStatementButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} />
+        <Button id="saveMedicationStatementButton" primary={true} onClick={this.handleSaveButton.bind(this)} >Save</Button>
       );
     }
   }
@@ -550,13 +542,13 @@ export class MedicationStatementDetail extends React.Component {
         {_id: this.state.medicationStatementId}, {$set: fhirMedicationStatementData }, function(error, result) {
           if (error) {
             console.log("error", error);
-            Bert.alert(error.reason, 'danger');
+            // Bert.alert(error.reason, 'danger');
           }
           if (result) {
             HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: self.state.medicationStatementId});
             Session.set('medicationStatementPageTabIndex', 1);
             Session.set('selectedMedicationStatementId', false);
-            Bert.alert('MedicationStatement updated!', 'success');
+            // Bert.alert('MedicationStatement updated!', 'success');
           }
         });
     } else {
@@ -570,13 +562,13 @@ export class MedicationStatementDetail extends React.Component {
       MedicationStatements._collection.insert(fhirMedicationStatementData, function(error, result) {
         if (error) {
           console.log("error", error);
-          Bert.alert(error.reason, 'danger');
+          // Bert.alert(error.reason, 'danger');
         }
         if (result) {
           HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: self.state.medicationStatementId});
           Session.set('medicationStatementPageTabIndex', 1);
           Session.set('selectedMedicationStatementId', false);
-          Bert.alert('MedicationStatement added!', 'success');
+          // Bert.alert('MedicationStatement added!', 'success');
         }
       });
     }
@@ -590,13 +582,13 @@ export class MedicationStatementDetail extends React.Component {
     let self = this;
     MedicationStatements._collection.remove({_id: this.state.medicationStatementId}, function(error, result){
       if (error) {
-        Bert.alert(error.reason, 'danger');
+        // Bert.alert(error.reason, 'danger');
       }
       if (result) {
         HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "MedicationStatements", recordId: self.state.medicationStatementId});
         Session.set('medicationStatementPageTabIndex', 1);
         Session.set('selectedMedicationStatementId', false);
-        Bert.alert('MedicationStatement removed!', 'success');
+        // Bert.alert('MedicationStatement removed!', 'success');
       }
     });
   }
